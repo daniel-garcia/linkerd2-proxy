@@ -89,12 +89,13 @@ pub fn default_config() -> Config {
         discovery_idle_timeout: Duration::from_secs(20),
         profile_skip_timeout: Duration::from_secs(1),
         unsafe_authority_labels: false,
+        proxy_protocol_v2_ports: Default::default(),
     }
 }
 
 pub fn runtime() -> (ProxyRuntime, drain::Signal) {
     let (drain_tx, drain) = drain::channel();
-    let (tap, _) = tap::new();
+    let (tap, _) = tap::new(std::sync::Arc::new(tap::default_header_allowlist()));
     let (metrics, _) = metrics::Metrics::new(std::time::Duration::from_secs(10));
     let runtime = ProxyRuntime {
         identity: identity::creds::default_for_test().1,
